@@ -4,6 +4,7 @@ from Entities.Ball import Ball
 from Entities.ShadowBall import ShadowBall
 
 pygame.init()
+pygame.mixer.init()
 
 SCREEN_WIDTH = 1280
 SCREEN_HEIGHT = 720
@@ -20,6 +21,12 @@ GRAVITY = .1
 ball = Ball(SCREEN_WIDTH -100, 650, 20)
 ball_velocity_x = -2
 ball_velocity_y = -8
+
+move_ball_sound_path = './Assets/pop_move.mp3'
+collide_ball_sound_path= './Assets/pop_collide.mp3'
+
+move_ball_sound = pygame.mixer.Sound(move_ball_sound_path)
+collide_ball_sound = pygame.mixer.Sound(collide_ball_sound_path)
 
 higher_velocity_y = ball_velocity_y
 velocity_divider = 1.2
@@ -44,10 +51,12 @@ while running:
    #     rect.move(-5, 0)
 
 
-    if ball.y >= SCREEN_HEIGHT - ball.radius:
+    if ball.y >= SCREEN_HEIGHT - ball.radius and ball_velocity_x < -.2:
         ball_velocity_y = higher_velocity_y / velocity_divider
         velocity_divider *= 1.05
         higher_velocity_y = ball_velocity_y
+        ball_velocity_x *= .9
+        collide_ball_sound.play()
 
     ball_velocity_y += GRAVITY
     ball.y += ball_velocity_y 
@@ -57,6 +66,7 @@ while running:
     draw_shadow_balls(shadow_balls)
 
     ball.draw(screen, pygame)
+
 
     shadow_balls.append(ShadowBall(ball.x, ball.y, 20))
 

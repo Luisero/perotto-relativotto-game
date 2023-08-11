@@ -5,7 +5,7 @@ class ShadowBall(Ball):
     
     def __init__(self, x, y, radius) -> None:
         super().__init__(x, y, radius)
-        self.COLOR = (randint(200,255), randint(100,150), randint(100,150))
+        self.COLOR = (randint(0,255), randint(0,255), randint(0,255))
 
     def draw(self, screen, pygame):
         return super().draw(screen, pygame)
