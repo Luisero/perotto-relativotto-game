@@ -1,6 +1,7 @@
 import pygame
 import sys
-from random import randint
+import os
+from random import randint, shuffle
 import math
 from Entities.CoinRayCast import CoinRayCast
 from Entities.Ball import Ball
@@ -31,9 +32,17 @@ collide_ball_sound_path= './Assets/pop_collide.mp3'
 collide_ball_sound = pygame.mixer.Sound(collide_ball_sound_path)
 sound_volume = 1
 
-sound_path = './Assets/soda_city.mp3'
-sound = pygame.mixer.Sound(sound_path)
-sound.play()
+music_directory = './Assets/classical_songs'
+
+music_files = [os.path.join(music_directory, filename) for filename in os.listdir(music_directory) if filename.endswith(".mp3")]
+shuffle(music_files)
+
+current_track = 0
+pygame.mixer.music.load(music_files[current_track])
+
+# Reproduzir música
+pygame.mixer.music.play()
+
 
 background_image = pygame.image.load("./Assets/background.png")  # Coloque o caminho para a sua imagem
 background_image = pygame.transform.scale(background_image, (SCREEN_WIDTH, SCREEN_HEIGHT))
@@ -50,11 +59,13 @@ coin_raycast = CoinRayCast(ball.x, ball.y, coin.x, coin.y)
 coin_picked_times = -1
 
 shadow_balls = []
-
-shadow_balls_limit = 0
+shadow_balls_radius = 10
+shadow_balls_limit = coin_picked_times
 
 def draw_shadow_balls(shadow_ball_list):
     for index,shadow_ball in enumerate(shadow_ball_list):
+        #shadow_ball.radius = shadow_balls_radius
+        #shadow_balls_radius +=1
         shadow_ball.draw(screen, pygame)
 
 
@@ -80,6 +91,11 @@ while running:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
+
+    if not pygame.mixer.music.get_busy():
+        current_track = (current_track + 1) % len(music_files)
+        pygame.mixer.music.load(music_files[current_track])
+        pygame.mixer.music.play()
 
     keys = pygame.key.get_pressed()
 
@@ -126,6 +142,12 @@ while running:
         ball.radius*= .99
         coin.x = randint(0,1100)
         coin.y = randint(0,700)
+        shadow_balls_limit +=1
+        if shadow_balls_radius<20:
+            shadow_balls_radius += 1
+        
+        if GRAVITY < .25:
+            GRAVITY += .05
   
     ball.y += ball_velocity_y 
 
@@ -150,13 +172,10 @@ while running:
     coin_raycast.draw(screen, pygame)
 
 
-    if len(shadow_balls) > shadow_balls_limit:
+    if len(shadow_balls) > shadow_balls_limit and len(shadow_balls) != 0:
         shadow_balls.pop(0)
 
-    if shadow_balls_limit <100:
-        shadow_balls_limit +=.1
-
-    shadow_balls.append(ShadowBall(ball.x, ball.y, 20))
+    shadow_balls.append(ShadowBall(ball.x, ball.y, shadow_balls_radius))
     screen.blit(text, (text_x, text_y))
 
 
