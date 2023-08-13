@@ -1,4 +1,4 @@
-from Entities.Ball import Ball
+from .Ball import Ball
 from random import randint
 
 class ShadowBall(Ball):
